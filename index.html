@@ -172,6 +172,20 @@
     .sample .t-small { font-size: .875rem; margin: 0 0 .5rem; }
     .sample .t-tiny { font-size: .75rem; opacity: 1; margin: 0; }
     .sample .en { font-style: normal; }
+    .criteria {
+      width: 100%; max-width: 40rem;
+      border-collapse: collapse;
+      font-size: .9375rem;
+      margin: 0 0 1.5rem;
+    }
+    .criteria th, .criteria td {
+      text-align: left; vertical-align: top;
+      padding: .5rem .75rem;
+      border-bottom: 1px solid currentColor;
+    }
+    .criteria th { font-size: .8125rem; font-weight: 700; }
+    .criteria .th-en { font-weight: 400; opacity: .8; font-size: .6875rem; }
+    .criteria td:nth-child(2) { white-space: nowrap; font-weight: 600; }
 
   </style>
 </head>
@@ -253,6 +267,45 @@
 
       <h2>작은 텍스트 · Small Text</h2>
       <p class="t-small">캡션, 각주, 라벨 같은 작은 글씨는 대비가 부족하면 가장 먼저 읽기 어려워집니다. Small type like captions, footnotes, and labels is the first to become illegible when contrast is low.</p>
+
+      <h2>WCAG 기준표 · Criteria</h2>
+      <table class="criteria">
+        <thead>
+          <tr>
+            <th>등급<br><span class="th-en">Level</span></th>
+            <th>최소 대비<br><span class="th-en">Min. ratio</span></th>
+            <th>대상<br><span class="th-en">Applies to</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>AAA</b></td>
+            <td>7 : 1</td>
+            <td>본문 텍스트 · Normal text</td>
+          </tr>
+          <tr>
+            <td><b>AA</b></td>
+            <td>4.5 : 1</td>
+            <td>본문 텍스트 · Normal text</td>
+          </tr>
+          <tr>
+            <td><b>AAA Large</b></td>
+            <td>4.5 : 1</td>
+            <td>큰 텍스트(18pt/24px+, 굵은 14pt+) · Large text</td>
+          </tr>
+          <tr>
+            <td><b>AA Large</b></td>
+            <td>3 : 1</td>
+            <td>큰 텍스트(18pt/24px+, 굵은 14pt+) · Large text</td>
+          </tr>
+          <tr>
+            <td><b>Fail</b></td>
+            <td>3 : 1 미만</td>
+            <td>어떤 텍스트에도 부적합 · Insufficient for any text</td>
+          </tr>
+        </tbody>
+      </table>
+
       <p class="t-tiny">© 2026 Colorable — WCAG 2.1 기준 대비 측정 · Contrast measured per WCAG 2.1</p>
     </section>
 

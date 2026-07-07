@@ -71,8 +71,10 @@
     }
     .badge.fail {
       background-color: #e5484d;
-      border-color: #e5484d;
+      border-color: #fff;
       color: #fff;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, .55);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
     }
     .levels { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
     .level {
@@ -85,10 +87,12 @@
     .level small { font-weight: 400; opacity: .85; font-size: .6875rem; }
     .level.fail {
       background-color: #e5484d;
-      border-color: #e5484d;
+      border-color: #fff;
       color: #fff;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, .55);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
     }
-    .level.fail small { opacity: .9; }
+    .level.fail small { opacity: .95; }
 
     /* ---- Controls ---- */
     .controls { display: grid; grid-template-columns: 1fr; gap: 2rem; padding: 1rem 0 2rem; }

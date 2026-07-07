@@ -69,7 +69,11 @@
       padding: .25rem 1rem;
       vertical-align: middle;
     }
-    .badge.fail { opacity: .5; }
+    .badge.fail {
+      background-color: #e5484d;
+      border-color: #e5484d;
+      color: #fff;
+    }
     .levels { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
     .level {
       font-size: .8125rem; font-weight: 600;
@@ -79,7 +83,12 @@
       min-width: 6.5rem;
     }
     .level small { font-weight: 400; opacity: .85; font-size: .6875rem; }
-    .level.fail { opacity: .45; }
+    .level.fail {
+      background-color: #e5484d;
+      border-color: #e5484d;
+      color: #fff;
+    }
+    .level.fail small { opacity: .9; }
 
     /* ---- Controls ---- */
     .controls { display: grid; grid-template-columns: 1fr; gap: 2rem; padding: 1rem 0 2rem; }

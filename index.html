@@ -70,6 +70,16 @@
       vertical-align: middle;
     }
     .badge.fail { opacity: .5; }
+    .levels { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .level {
+      font-size: .8125rem; font-weight: 600;
+      border: 1px solid currentColor; border-radius: 4px;
+      padding: .375rem .625rem;
+      display: flex; flex-direction: column; gap: .125rem;
+      min-width: 6.5rem;
+    }
+    .level small { font-weight: 400; opacity: .85; font-size: .6875rem; }
+    .level.fail { opacity: .45; }
 
     /* ---- Controls ---- */
     .controls { display: grid; grid-template-columns: 1fr; gap: 2rem; padding: 1rem 0 2rem; }
@@ -153,8 +163,15 @@
 
     /* ---- Sample text ---- */
     .sample { max-width: 44rem; padding-bottom: 3rem; }
-    .sample h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 .75rem; }
-    .sample p { font-size: 1.125rem; margin: 0; }
+    .sample h2 { font-size: 1.25rem; font-weight: 700; margin: 2.5rem 0 .75rem; }
+    .sample h2:first-child { margin-top: 0; }
+    .sample p { font-size: 1.125rem; margin: 0 0 1rem; }
+    .sample .t-display { font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin: 0 0 .25rem; }
+    .sample .t-large { font-size: 1.5rem; font-weight: 400; line-height: 1.35; margin: 0 0 1rem; }
+    .sample .t-bold { font-weight: 700; }
+    .sample .t-small { font-size: .875rem; margin: 0 0 .5rem; }
+    .sample .t-tiny { font-size: .75rem; opacity: 1; margin: 0; }
+    .sample .en { font-style: normal; }
 
   </style>
 </head>
@@ -170,6 +187,7 @@
         <span class="ratio" id="ratio">0.00</span>
         <span class="badge" id="badge">Fail</span>
       </div>
+      <div class="levels" id="levels"></div>
     </section>
 
     <section class="controls">
@@ -224,8 +242,18 @@
     </section>
 
     <section class="sample">
-      <h2>대비(Contrast)란?</h2>
+      <h2>큰 텍스트 · Large Text (18pt+)</h2>
+      <p class="t-display">가나다라 ABC 123</p>
+      <p class="t-large">다람쥐 헌 쳇바퀴에 타고파. 정 참판 양반댁 규수 큰 교자 타고 혼례 치른 날.</p>
+      <p class="t-large en">The quick brown fox jumps over the lazy dog. <span class="t-bold">Sphinx of black quartz, judge my vow.</span></p>
+
+      <h2>본문 텍스트 · Body Text</h2>
       <p>대비(contrast)는 어떤 물체(또는 이미지나 디스플레이 상의 그 표현)를 구별할 수 있게 만드는 휘도 또는 색상의 차이입니다. 현실 세계의 시각 인지에서 대비는 같은 시야 안에 있는 물체와 다른 물체들 간의 색상 및 밝기 차이로 결정됩니다.</p>
+      <p class="en">Contrast is the difference in luminance or color that makes an object distinguishable. In visual perception of the real world, contrast is determined by the difference in the color and brightness of the object and other objects within the same field of view. <span class="t-bold">Good contrast makes interfaces usable for everyone,</span> including people with low vision or color deficiencies.</p>
+
+      <h2>작은 텍스트 · Small Text</h2>
+      <p class="t-small">캡션, 각주, 라벨 같은 작은 글씨는 대비가 부족하면 가장 먼저 읽기 어려워집니다. Small type like captions, footnotes, and labels is the first to become illegible when contrast is low.</p>
+      <p class="t-tiny">© 2026 Colorable — WCAG 2.1 기준 대비 측정 · Contrast measured per WCAG 2.1</p>
     </section>
 
   </div>
@@ -283,6 +311,12 @@
       if (ratio >= 3)   return 'AA Large';
       return 'Fail';
     }
+    var LEVELS = [
+      { name: 'AA',        min: 4.5, desc: '본문 4.5:1' },
+      { name: 'AAA',       min: 7,   desc: '본문 7:1' },
+      { name: 'AA Large',  min: 3,   desc: '큰 글씨 3:1' },
+      { name: 'AAA Large', min: 4.5, desc: '큰 글씨 4.5:1' }
+    ];
 
     // ---------- 상태 ----------
     // 라이브 사이트 기본값: text #004466 on background #00ffa2
@@ -346,6 +380,13 @@
       var g = grade(ratio);
       $('badge').textContent = g;
       $('badge').className = 'badge' + (g === 'Fail' ? ' fail' : '');
+
+      $('levels').innerHTML = LEVELS.map(function (l) {
+        var pass = ratio >= l.min;
+        return '<div class="level' + (pass ? '' : ' fail') + '">' +
+          '<span>' + (pass ? '✓' : '✕') + ' ' + l.name + '</span>' +
+          '<small>' + l.desc + '</small></div>';
+      }).join('');
 
       // 버튼은 라이브 사이트처럼 색 반전
       ['reverse', 'random'].forEach(function (id) {

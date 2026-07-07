@@ -152,7 +152,27 @@
     .actions button:active { opacity: .7; }
 
     /* ---- Saved combinations ---- */
+    #save-name {
+      font-family: inherit; font-size: .875rem;
+      padding: .5rem .75rem;
+      border: 1px solid currentColor; border-radius: 4px;
+      background: transparent; color: inherit;
+      min-width: 10rem;
+      -webkit-appearance: none; appearance: none;
+    }
+    #save-name::placeholder { color: currentColor; opacity: .55; }
+    #save-name:focus { outline: none; box-shadow: inset 0 -2px 0 currentColor; }
+
     .saved { padding-bottom: 2.5rem; }
+    .saved-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .mini-btn {
+      font-family: inherit; font-size: .8125rem; font-weight: 600;
+      padding: .375rem .75rem;
+      border: 1px solid currentColor; border-radius: 4px;
+      background: transparent; color: inherit;
+      cursor: pointer; -webkit-appearance: none; appearance: none;
+    }
+    .mini-btn:hover { opacity: .8; }
     .saved-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
@@ -174,18 +194,28 @@
     .saved-swatch {
       padding: 1rem .875rem 1.25rem;
       display: flex; flex-direction: column; gap: .125rem;
+      cursor: pointer;
     }
     .saved-swatch .aa { font-size: 1.75rem; font-weight: 800; line-height: 1; }
     .saved-swatch .meta { font-size: .6875rem; font-weight: 600; opacity: .85; }
+    .saved-swatch .hexes { font-family: var(--font-ibmplex); font-size: .625rem; opacity: .7; letter-spacing: -.01em; margin-top: .125rem; }
     .saved-info {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: .375rem .625rem;
-      font-size: .6875rem; font-weight: 600;
+      display: flex; align-items: center; gap: .375rem;
+      padding: .25rem .5rem .25rem .625rem;
       background: rgba(127, 127, 127, .12);
       color: inherit;
     }
-    .saved-info .hexes { font-family: var(--font-ibmplex); letter-spacing: -.01em; }
-    .saved-grade { font-weight: 700; }
+    .saved-name {
+      flex: 1; min-width: 0;
+      font-family: inherit; font-size: .75rem; font-weight: 600;
+      padding: .25rem 0; margin: 0;
+      border: 0; border-radius: 0;
+      background: transparent; color: inherit;
+      -webkit-appearance: none; appearance: none;
+    }
+    .saved-name::placeholder { color: currentColor; opacity: .5; font-weight: 400; }
+    .saved-name:focus { outline: none; box-shadow: inset 0 -1px 0 currentColor; }
+    .saved-grade { font-weight: 700; font-size: .6875rem; flex: none; }
     .saved-del {
       position: absolute; top: .375rem; right: .375rem;
       width: 1.375rem; height: 1.375rem;
@@ -305,11 +335,15 @@
     <section class="actions">
       <button type="button" id="reverse">Reverse</button>
       <button type="button" id="random">Random</button>
+      <input type="text" id="save-name" placeholder="이름 (선택)" maxlength="40" autocomplete="off" aria-label="저장할 조합 이름">
       <button type="button" id="save">♥ Save</button>
     </section>
 
     <section class="saved" id="saved-section" hidden>
-      <span class="panel-label">Saved <span id="saved-count"></span></span>
+      <div class="saved-head">
+        <span class="panel-label">Saved <span id="saved-count"></span></span>
+        <button type="button" id="download-md" class="mini-btn">⬇ Markdown</button>
+      </div>
       <div class="saved-list" id="saved-list"></div>
     </section>
 
@@ -599,53 +633,110 @@
         var ratio = contrast(item.text, item.bg);
         var g = grade(ratio);
         return '' +
-          '<button type="button" class="saved-card" data-i="' + i + '" ' +
-          'style="color:#' + esc(item.text) + ';background-color:#' + esc(item.bg) + '" ' +
-          'title="#' + esc(item.text) + ' on #' + esc(item.bg) + ' 불러오기">' +
-            '<span class="saved-del" data-del="' + i + '" title="삭제" aria-label="삭제">×</span>' +
-            '<span class="saved-swatch">' +
+          '<div class="saved-card" ' +
+          'style="color:#' + esc(item.text) + ';background-color:#' + esc(item.bg) + '">' +
+            '<button type="button" class="saved-del" data-del="' + i + '" title="삭제" aria-label="삭제">×</button>' +
+            '<div class="saved-swatch" data-load="' + i + '" role="button" tabindex="0" title="이 조합 불러오기">' +
               '<span class="aa">Aa</span>' +
               '<span class="meta">' + ratio.toFixed(2) + ' · ' + g + '</span>' +
-            '</span>' +
-            '<span class="saved-info">' +
               '<span class="hexes">#' + esc(item.text) + ' / #' + esc(item.bg) + '</span>' +
+            '</div>' +
+            '<div class="saved-info">' +
+              '<input class="saved-name" data-name="' + i + '" value="' + esc(item.name || '') + '" ' +
+              'placeholder="이름 입력…" maxlength="40" autocomplete="off" aria-label="조합 이름">' +
               '<span class="saved-grade">' + (g === 'Fail' ? '✕' : '✓') + '</span>' +
-            '</span>' +
-          '</button>';
+            '</div>' +
+          '</div>';
       }).join('');
     }
 
     $('save').addEventListener('click', function () {
-      var item = { text: hexOf(state.text), bg: hexOf(state.bg) };
+      var name = $('save-name').value.trim();
+      var item = { text: hexOf(state.text), bg: hexOf(state.bg), name: name };
       var list = loadSaved();
       // 중복 제거 후 맨 앞에 추가
       list = list.filter(function (x) { return !(x.text === item.text && x.bg === item.bg); });
       list.unshift(item);
       persistSaved(list);
+      $('save-name').value = '';
       renderSaved();
     });
 
+    // 이름 입력창에서 Enter → 저장
+    $('save-name').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') $('save').click();
+    });
+
+    // 카드 로드 / 삭제
+    function loadCombo(i) {
+      var item = loadSaved()[i];
+      if (item) {
+        state.text = hexToHsl(item.text);
+        state.bg = hexToHsl(item.bg);
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
     $('saved-list').addEventListener('click', function (e) {
       var del = e.target.closest('.saved-del');
       if (del) {
-        e.stopPropagation();
         var list = loadSaved();
         list.splice(parseInt(del.getAttribute('data-del'), 10), 1);
         persistSaved(list);
         renderSaved();
         return;
       }
-      var card = e.target.closest('.saved-card');
-      if (card) {
-        var item = loadSaved()[parseInt(card.getAttribute('data-i'), 10)];
-        if (item) {
-          state.text = hexToHsl(item.text);
-          state.bg = hexToHsl(item.bg);
-          render();
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+      var sw = e.target.closest('.saved-swatch');
+      if (sw) loadCombo(parseInt(sw.getAttribute('data-load'), 10));
+    });
+    $('saved-list').addEventListener('keydown', function (e) {
+      var sw = e.target.closest('.saved-swatch');
+      if (sw && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        loadCombo(parseInt(sw.getAttribute('data-load'), 10));
       }
     });
+
+    // 카드 이름 편집 (blur 시 저장, 전체 재렌더 없이 데이터만 갱신)
+    $('saved-list').addEventListener('change', function (e) {
+      var input = e.target.closest('.saved-name');
+      if (!input) return;
+      var i = parseInt(input.getAttribute('data-name'), 10);
+      var list = loadSaved();
+      if (list[i]) { list[i].name = input.value.trim(); persistSaved(list); }
+    });
+
+    // ---------- Markdown 다운로드 ----------
+    function downloadMarkdown() {
+      var list = loadSaved();
+      if (!list.length) return;
+      var rows = list.map(function (item) {
+        var ratio = contrast(item.text, item.bg).toFixed(2);
+        var g = grade(contrast(item.text, item.bg));
+        var name = (item.name || '(이름 없음)').replace(/\|/g, '\\|');
+        var link = 'https://color.griff.co.kr/' + item.text + '/' + item.bg;
+        return '| ' + name + ' | `#' + item.text + '` | `#' + item.bg + '` | ' + ratio + ' | ' + g + ' | [열기](' + link + ') |';
+      });
+      var md = [
+        '# Colorable 저장 조합',
+        '',
+        '저장된 색 조합 ' + list.length + '개 · WCAG 2.1 대비 기준',
+        '',
+        '| 이름 | 글자색 | 배경색 | 대비 | 등급 | 링크 |',
+        '| --- | --- | --- | --- | --- | --- |'
+      ].concat(rows).join('\n') + '\n';
+
+      var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'colorable-combinations.md';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+    $('download-md').addEventListener('click', downloadMarkdown);
 
     renderSaved();
     render();

@@ -138,6 +138,18 @@
     input[type=range]:focus::-webkit-slider-thumb { box-shadow: 0 0 0 3px currentColor; }
     input[type=range]:focus::-moz-range-thumb { box-shadow: 0 0 0 3px currentColor; }
 
+    /* ---- Color values (RGB / CMYK) ---- */
+    .values {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .25rem .75rem;
+      margin: 1.25rem 0 0;
+      font-family: var(--font-ibmplex);
+      font-size: .8125rem;
+    }
+    .values dt { font-weight: 700; opacity: .8; }
+    .values dd { margin: 0; letter-spacing: .01em; }
+
     /* ---- Buttons ---- */
     .actions { display: flex; gap: .75rem; padding-bottom: 2.5rem; }
     .actions button {
@@ -312,6 +324,7 @@
           <label id="text-lightness-label" for="text-lightness">Lightness</label>
           <input type="range" id="text-lightness" min="0" max="1" step="0.00390625">
         </div>
+        <dl class="values" id="text-values"></dl>
       </div>
 
       <div class="panel" id="panel-bg">
@@ -329,6 +342,7 @@
           <label id="bg-lightness-label" for="bg-lightness">Lightness</label>
           <input type="range" id="bg-lightness" min="0" max="1" step="0.00390625">
         </div>
+        <dl class="values" id="bg-values"></dl>
       </div>
     </section>
 
@@ -492,6 +506,29 @@
 
     function hexOf(c) { return hslToHex(c.h, c.s, c.l); }
 
+    function hexToRgb(hex) {
+      return {
+        r: parseInt(hex.substr(0, 2), 16),
+        g: parseInt(hex.substr(2, 2), 16),
+        b: parseInt(hex.substr(4, 2), 16)
+      };
+    }
+    // RGB → CMYK (0–100%)
+    function rgbToCmyk(r, g, b) {
+      var rf = r / 255, gf = g / 255, bf = b / 255;
+      var k = 1 - Math.max(rf, gf, bf);
+      if (k >= 1) return { c: 0, m: 0, y: 0, k: 100 };
+      var c = (1 - rf - k) / (1 - k);
+      var m = (1 - gf - k) / (1 - k);
+      var y = (1 - bf - k) / (1 - k);
+      return {
+        c: Math.round(c * 100),
+        m: Math.round(m * 100),
+        y: Math.round(y * 100),
+        k: Math.round(k * 100)
+      };
+    }
+
     function gradient(stops) {
       return 'linear-gradient(to right, ' + stops.join(', ') + ')';
     }
@@ -521,6 +558,14 @@
       $(key + '-lightness').style.background = gradient([
         '#000000', '#' + hslToHex(c.h, c.s, 0.5), '#ffffff'
       ]);
+
+      // RGB / CMYK 값
+      var rgb = hexToRgb(hex);
+      var k = rgbToCmyk(rgb.r, rgb.g, rgb.b);
+      $(key + '-values').innerHTML =
+        '<dt>HEX</dt><dd>#' + hex.toUpperCase() + '</dd>' +
+        '<dt>RGB</dt><dd>' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + '</dd>' +
+        '<dt>CMYK</dt><dd>' + k.c + ', ' + k.m + ', ' + k.y + ', ' + k.k + '</dd>';
     }
 
     function render(pushUrl) {

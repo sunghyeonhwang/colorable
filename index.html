@@ -140,15 +140,27 @@
 
     /* ---- Color values (RGB / CMYK) ---- */
     .values {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: .25rem .75rem;
+      display: flex; flex-direction: column; gap: .4rem;
       margin: 1.25rem 0 0;
       font-family: var(--font-ibmplex);
       font-size: .8125rem;
     }
-    .values dt { font-weight: 700; opacity: .8; }
-    .values dd { margin: 0; letter-spacing: .01em; }
+    .value-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .v-label { font-weight: 700; opacity: .8; width: 3.2rem; flex: none; }
+    .v-val { letter-spacing: .01em; }
+    .cmyk-chips { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .copy-btn, .chip, .copy-all {
+      font-family: inherit; font-size: .6875rem; font-weight: 600;
+      padding: .15rem .4rem;
+      border: 1px solid currentColor; border-radius: 3px;
+      background: transparent; color: inherit;
+      cursor: pointer; opacity: .7; white-space: nowrap;
+      -webkit-appearance: none; appearance: none;
+    }
+    .copy-btn:hover, .chip:hover, .copy-all:hover { opacity: 1; }
+    .chip b { font-weight: 700; }
+    .copy-all { align-self: flex-start; margin-top: .1rem; padding: .3rem .6rem; opacity: .9; }
+    .is-copied { opacity: 1; }
 
     /* ---- Buttons ---- */
     .actions { display: flex; gap: .75rem; padding-bottom: 2.5rem; }
@@ -324,7 +336,7 @@
           <label id="text-lightness-label" for="text-lightness">Lightness</label>
           <input type="range" id="text-lightness" min="0" max="1" step="0.00390625">
         </div>
-        <dl class="values" id="text-values"></dl>
+        <div class="values" id="text-values"></div>
       </div>
 
       <div class="panel" id="panel-bg">
@@ -342,7 +354,7 @@
           <label id="bg-lightness-label" for="bg-lightness">Lightness</label>
           <input type="range" id="bg-lightness" min="0" max="1" step="0.00390625">
         </div>
-        <dl class="values" id="bg-values"></dl>
+        <div class="values" id="bg-values"></div>
       </div>
     </section>
 
@@ -559,13 +571,37 @@
         '#000000', '#' + hslToHex(c.h, c.s, 0.5), '#ffffff'
       ]);
 
-      // RGB / CMYK 값
+      // RGB / CMYK 값 + 복사 버튼
       var rgb = hexToRgb(hex);
       var k = rgbToCmyk(rgb.r, rgb.g, rgb.b);
+      var hexStr = '#' + hex.toUpperCase();
+      var rgbStr = rgb.r + ', ' + rgb.g + ', ' + rgb.b;
+      var cmykStr = k.c + ', ' + k.m + ', ' + k.y + ', ' + k.k;
+      var allStr = 'HEX ' + hexStr + '\nRGB ' + rgbStr + '\nCMYK ' + cmykStr;
+
+      function chip(ch, val) {
+        return '<button type="button" class="chip" data-copy="' + val + '" title="' + ch + ' 값 복사">' +
+          ch + ' <b>' + val + '</b></button>';
+      }
       $(key + '-values').innerHTML =
-        '<dt>HEX</dt><dd>#' + hex.toUpperCase() + '</dd>' +
-        '<dt>RGB</dt><dd>' + rgb.r + ', ' + rgb.g + ', ' + rgb.b + '</dd>' +
-        '<dt>CMYK</dt><dd>' + k.c + ', ' + k.m + ', ' + k.y + ', ' + k.k + '</dd>';
+        '<div class="value-row">' +
+          '<span class="v-label">HEX</span>' +
+          '<span class="v-val">' + hexStr + '</span>' +
+          '<button type="button" class="copy-btn" data-copy="' + hexStr + '" title="HEX 복사">복사</button>' +
+        '</div>' +
+        '<div class="value-row">' +
+          '<span class="v-label">RGB</span>' +
+          '<span class="v-val">' + rgbStr + '</span>' +
+          '<button type="button" class="copy-btn" data-copy="' + rgbStr + '" title="RGB 복사">복사</button>' +
+        '</div>' +
+        '<div class="value-row">' +
+          '<span class="v-label">CMYK</span>' +
+          '<span class="cmyk-chips">' +
+            chip('C', k.c) + chip('M', k.m) + chip('Y', k.y) + chip('K', k.k) +
+          '</span>' +
+        '</div>' +
+        '<button type="button" class="copy-all" data-copy="' + allStr.replace(/"/g, '&quot;') + '" ' +
+          'title="HEX·RGB·CMYK 모두 복사">전체 복사</button>';
     }
 
     function render(pushUrl) {
@@ -782,6 +818,37 @@
       setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     }
     $('download-md').addEventListener('click', downloadMarkdown);
+
+    // ---------- 값 복사 ----------
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      }
+      return new Promise(function (res, rej) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        try { document.execCommand('copy'); res(); } catch (e) { rej(e); }
+        ta.remove();
+      });
+    }
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-copy]');
+      if (!btn) return;
+      copyText(btn.getAttribute('data-copy')).then(function () {
+        if (!btn.hasAttribute('data-label')) btn.setAttribute('data-label', btn.innerHTML);
+        btn.innerHTML = '✓ 복사됨';
+        btn.classList.add('is-copied');
+        clearTimeout(btn._copyT);
+        btn._copyT = setTimeout(function () {
+          btn.innerHTML = btn.getAttribute('data-label');
+          btn.classList.remove('is-copied');
+        }, 900);
+      });
+    });
 
     renderSaved();
     render();

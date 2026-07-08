@@ -9,7 +9,32 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700;800&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquareNeo/nanumsquareneo.css" rel="stylesheet">
   <style>
+    /* SUIT (가변 폰트) */
+    @font-face {
+      font-family: 'SUIT';
+      src: url('https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.woff2') format('woff2-variations');
+      font-weight: 100 900; font-style: normal; font-display: swap;
+    }
+
+    /* 프리젠테이션 (Freesentation) */
+    @font-face { font-family: 'Freesentation'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Freesentation/Freesentation-4Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Freesentation'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Freesentation/Freesentation-6SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Freesentation'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Freesentation/Freesentation-7Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Freesentation'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Freesentation/Freesentation-8ExtraBold.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+
+    /* 페이퍼로지 (Paperlogy) */
+    @font-face { font-family: 'Paperlogy'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-4Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Paperlogy'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-6SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'Paperlogy'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-7Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+    @font-face { font-family: 'Paperlogy'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy-8ExtraBold.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+
+    /* 마루부리 (MaruBuri, 세리프) */
+    @font-face { font-family: 'MaruBuri'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/MaruBuri/MaruBuri-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'MaruBuri'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/MaruBuri/MaruBuri-SemiBold.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+    @font-face { font-family: 'MaruBuri'; src: url('https://cdn.jsdelivr.net/gh/fonts-archive/MaruBuri/MaruBuri-Bold.woff2') format('woff2'); font-weight: 700 800; font-display: swap; }
+
     /* 더잠실체 (눈누 CDN) */
     @font-face {
       font-family: 'TheJamsil';
@@ -34,6 +59,11 @@
       --font-pretendard: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;
       --font-jamsil: "TheJamsil", "Apple SD Gothic Neo", sans-serif;
       --font-ibmplex: "IBM Plex Sans KR", -apple-system, sans-serif;
+      --font-freesentation: "Freesentation", "Apple SD Gothic Neo", sans-serif;
+      --font-paperlogy: "Paperlogy", "Apple SD Gothic Neo", sans-serif;
+      --font-suit: "SUIT", "Apple SD Gothic Neo", sans-serif;
+      --font-maruburi: "MaruBuri", "Apple SD Gothic Neo", serif;
+      --font-nanumneo: "NanumSquareNeo", "Apple SD Gothic Neo", sans-serif;
     }
     body {
       font-family: var(--font-inter);
@@ -42,10 +72,15 @@
       transition: color .15s ease-out, background-color .15s ease-out;
       min-height: 100vh;
     }
-    body[data-font="inter"]      { font-family: var(--font-inter); }
-    body[data-font="pretendard"] { font-family: var(--font-pretendard); }
-    body[data-font="jamsil"]     { font-family: var(--font-jamsil); }
-    body[data-font="ibmplex"]    { font-family: var(--font-ibmplex); }
+    body[data-font="inter"]         { font-family: var(--font-inter); }
+    body[data-font="pretendard"]    { font-family: var(--font-pretendard); }
+    body[data-font="jamsil"]        { font-family: var(--font-jamsil); }
+    body[data-font="ibmplex"]       { font-family: var(--font-ibmplex); }
+    body[data-font="freesentation"] { font-family: var(--font-freesentation); }
+    body[data-font="paperlogy"]     { font-family: var(--font-paperlogy); }
+    body[data-font="suit"]          { font-family: var(--font-suit); }
+    body[data-font="maruburi"]      { font-family: var(--font-maruburi); }
+    body[data-font="nanumneo"]      { font-family: var(--font-nanumneo); }
     .container { max-width: 72rem; margin: 0 auto; padding: 1.5rem; }
 
     header { display: flex; align-items: center; justify-content: space-between; }
@@ -272,10 +307,15 @@
       background-color: var(--c-text, #004466);
       border-color: var(--c-text, #004466);
     }
-    .font-btn.f-inter      { font-family: var(--font-inter); }
-    .font-btn.f-pretendard { font-family: var(--font-pretendard); }
-    .font-btn.f-jamsil     { font-family: var(--font-jamsil); }
-    .font-btn.f-ibmplex    { font-family: var(--font-ibmplex); }
+    .font-btn.f-inter         { font-family: var(--font-inter); }
+    .font-btn.f-pretendard    { font-family: var(--font-pretendard); }
+    .font-btn.f-jamsil        { font-family: var(--font-jamsil); }
+    .font-btn.f-ibmplex       { font-family: var(--font-ibmplex); }
+    .font-btn.f-freesentation { font-family: var(--font-freesentation); }
+    .font-btn.f-paperlogy     { font-family: var(--font-paperlogy); }
+    .font-btn.f-suit          { font-family: var(--font-suit); }
+    .font-btn.f-maruburi      { font-family: var(--font-maruburi); }
+    .font-btn.f-nanumneo      { font-family: var(--font-nanumneo); }
 
     /* ---- Sample text ---- */
     .sample { max-width: 44rem; padding-bottom: 3rem; }
@@ -380,6 +420,11 @@
         <button type="button" class="font-btn f-pretendard" data-font="pretendard">프리텐다드</button>
         <button type="button" class="font-btn f-jamsil" data-font="jamsil">더잠실</button>
         <button type="button" class="font-btn f-ibmplex" data-font="ibmplex">IBM Plex KR</button>
+        <button type="button" class="font-btn f-freesentation" data-font="freesentation">프리젠테이션</button>
+        <button type="button" class="font-btn f-paperlogy" data-font="paperlogy">페이퍼로지</button>
+        <button type="button" class="font-btn f-suit" data-font="suit">수트</button>
+        <button type="button" class="font-btn f-maruburi" data-font="maruburi">마루부리</button>
+        <button type="button" class="font-btn f-nanumneo" data-font="nanumneo">나눔스퀘어 네오</button>
       </div>
     </section>
 
@@ -657,7 +702,7 @@
     });
 
     // ---------- 폰트 전환 ----------
-    var FONTS = ['inter', 'pretendard', 'jamsil', 'ibmplex'];
+    var FONTS = ['inter', 'pretendard', 'jamsil', 'ibmplex', 'freesentation', 'paperlogy', 'suit', 'maruburi', 'nanumneo'];
     function setFont(name) {
       if (FONTS.indexOf(name) < 0) name = 'inter';
       document.body.setAttribute('data-font', name);

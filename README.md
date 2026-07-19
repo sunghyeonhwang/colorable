@@ -99,5 +99,22 @@ When set to `true`, the array of colors is passed through lodash.uniq to remove 
 
 ---
 
+## Griff 버전 (color.griff.co.kr)
+
+배포 사이트는 원본 React/webpack 데모(`docs/`, `webpack.config.js`, `index.js` — 모두 `.vercelignore`)를
+쓰지 않고, 손으로 유지하는 단일 정적 파일 **`index.html`**(인라인 CSS + 바닐라 JS)을 그대로 서빙한다.
+기능 추가는 이 파일을 직접 편집한다.
+
+이번에 추가된 기능:
+
+- **그리프 프리셋 · Griff Presets** — 폰트 스위처 아래 스와치 칩 그룹(Que 상태색 5·브랜드·바로가기 6·DayBlocks 8).
+  칩 클릭 = 글자색 적용, Shift+클릭 또는 우클릭 = 배경색 적용. 색 값은 실제 소스에서 추출
+  (Que `globals.css`/`pm-columns.ts`, `menu.ts` accentColor, DayBlocks `tokens.css`).
+- **색각 이상 시뮬레이션** — 미리보기(샘플 텍스트)에 SVG `feColorMatrix` 필터(적록 protan/deutan·청황 tritan) 토글.
+  근사치이며, 상단 대비 수치·뱃지는 원본 색 기준 그대로 유지한다.
+- **커스텀 샘플 문장** — 입력창에 문장을 넣으면 큰/본문/작은 샘플의 첫 문장이 교체된다(비우면 복원).
+- **APCA Lc 병기** — WCAG 2 대비 옆에 APCA-W3(Lc) 값을 참고용으로 표시. 등급 판정은 WCAG 2 그대로.
+- **파비콘** — 팔레트 계열 SVG(`/favicon.svg`).
+
 MIT License
 

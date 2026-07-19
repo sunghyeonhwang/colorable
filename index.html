@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Colorable</title>
   <meta name="description" content="Color combination contrast tester — WCAG accessibility scoring">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600;700;800&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
@@ -343,9 +344,79 @@
     .criteria .th-en { font-weight: 400; opacity: .8; font-size: .6875rem; }
     .criteria td:nth-child(2) { white-space: nowrap; font-weight: 600; }
 
+    /* ---- APCA (참고 표기) ---- */
+    .apca-row { display: flex; align-items: baseline; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
+    .apca { font-size: 1rem; font-weight: 700; font-family: var(--font-ibmplex); }
+    .apca-note { font-size: .6875rem; font-weight: 400; opacity: .75; }
+
+    /* ---- Griff presets ---- */
+    .presets { padding-bottom: 2.5rem; }
+    .preset-hint { font-size: .6875rem; opacity: .75; margin: .25rem 0 .75rem; }
+    .preset-group { margin-top: .875rem; }
+    .preset-group:first-of-type { margin-top: .375rem; }
+    .preset-group-label { font-size: .6875rem; font-weight: 700; opacity: .8; letter-spacing: .04em; margin-bottom: .375rem; display: block; }
+    .swatches { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .swatch {
+      width: 2.5rem; height: 2.5rem;      /* 40px 터치 대상 */
+      border-radius: 6px;
+      border: 1px solid rgba(127,127,127,.35);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+      cursor: pointer; padding: 0;
+      -webkit-appearance: none; appearance: none;
+      transition: transform .08s;
+    }
+    .swatch:hover { transform: translateY(-2px); }
+    .swatch:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+    /* ---- Colour-blindness simulation + custom sample ---- */
+    .sample-tools { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: flex-end; margin-bottom: 1.75rem; }
+    .sample-tool { display: flex; flex-direction: column; gap: .375rem; }
+    .sample-tool > .panel-label { margin-bottom: 0; }
+    #custom-sample {
+      font-family: inherit; font-size: .9375rem;
+      padding: .5rem .75rem;
+      border: 1px solid currentColor; border-radius: 4px;
+      background: transparent; color: inherit;
+      min-width: 16rem;
+      -webkit-appearance: none; appearance: none;
+    }
+    #custom-sample::placeholder { color: currentColor; opacity: .55; }
+    #custom-sample:focus { outline: none; box-shadow: inset 0 -2px 0 currentColor; }
+    .sim-btns { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .sim-btn {
+      font-family: inherit; font-size: .8125rem; font-weight: 600;
+      padding: .5rem .875rem;
+      border: 1px solid currentColor; border-radius: 4px;
+      background: transparent; color: inherit;
+      cursor: pointer; -webkit-appearance: none; appearance: none;
+      transition: opacity .1s;
+    }
+    .sim-btn:hover { opacity: .8; }
+    .sim-btn[aria-pressed="true"] {
+      color: var(--c-bg, #00ffa2);
+      background-color: var(--c-text, #004466);
+      border-color: var(--c-text, #004466);
+    }
+    .sim-note { font-size: .6875rem; opacity: .7; margin: -1rem 0 1.5rem; }
+
   </style>
 </head>
 <body>
+  <!-- 색각 이상 시뮬레이션 필터 (Wickline 근사 행렬). 미리보기 영역에만 filter:url()로 적용 -->
+  <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <filter id="cvd-prot" color-interpolation-filters="linearRGB">
+        <feColorMatrix type="matrix" values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0"/>
+      </filter>
+      <filter id="cvd-deut" color-interpolation-filters="linearRGB">
+        <feColorMatrix type="matrix" values="0.625 0.375 0 0 0  0.70 0.30 0 0 0  0 0.30 0.70 0 0  0 0 0 1 0"/>
+      </filter>
+      <filter id="cvd-trit" color-interpolation-filters="linearRGB">
+        <feColorMatrix type="matrix" values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0"/>
+      </filter>
+    </defs>
+  </svg>
+
   <div class="container">
     <header>
       <a class="logo" href="/">Colorable</a>
@@ -356,6 +427,10 @@
       <div class="score">
         <span class="ratio" id="ratio">0.00</span>
         <span class="badge" id="badge">Fail</span>
+      </div>
+      <div class="apca-row">
+        <span class="apca" id="apca">APCA Lc 0</span>
+        <span class="apca-note">WCAG 3 후보 지표 · reference only</span>
       </div>
       <div class="levels" id="levels"></div>
     </section>
@@ -428,18 +503,44 @@
       </div>
     </section>
 
+    <section class="presets">
+      <span class="panel-label">그리프 프리셋 · Griff Presets</span>
+      <p class="preset-hint">클릭 = 글자색 · Shift+클릭 또는 우클릭 = 배경색 &nbsp;/&nbsp; Click = text, Shift+click or right-click = background</p>
+      <div id="preset-groups"></div>
+    </section>
+
+    <section class="sample-controls">
+      <div class="sample-tools">
+        <div class="sample-tool">
+          <label class="panel-label" for="custom-sample">샘플 문장 · Sample text</label>
+          <input type="text" id="custom-sample" maxlength="120" autocomplete="off"
+            placeholder="직접 입력하면 첫 문장이 바뀝니다…">
+        </div>
+        <div class="sample-tool">
+          <span class="panel-label">색각 이상 시뮬레이션 · Colour-vision</span>
+          <div class="sim-btns" id="sim-btns">
+            <button type="button" class="sim-btn" data-sim="none" aria-pressed="true">없음 None</button>
+            <button type="button" class="sim-btn" data-sim="prot" aria-pressed="false">적록 Protan</button>
+            <button type="button" class="sim-btn" data-sim="deut" aria-pressed="false">적록 Deutan</button>
+            <button type="button" class="sim-btn" data-sim="trit" aria-pressed="false">청황 Tritan</button>
+          </div>
+        </div>
+      </div>
+      <p class="sim-note">시뮬레이션은 근사치입니다 · Simulation is approximate. (상단 대비 수치·뱃지는 원본 색 기준 그대로입니다)</p>
+    </section>
+
     <section class="sample">
       <h2>큰 텍스트 · Large Text (18pt+)</h2>
-      <p class="t-display">가나다라 ABC 123</p>
+      <p class="t-display" id="sample-large">가나다라 ABC 123</p>
       <p class="t-large">다람쥐 헌 쳇바퀴에 타고파. 정 참판 양반댁 규수 큰 교자 타고 혼례 치른 날.</p>
       <p class="t-large en">The quick brown fox jumps over the lazy dog. <span class="t-bold">Sphinx of black quartz, judge my vow.</span></p>
 
       <h2>본문 텍스트 · Body Text</h2>
-      <p>대비(contrast)는 어떤 물체(또는 이미지나 디스플레이 상의 그 표현)를 구별할 수 있게 만드는 휘도 또는 색상의 차이입니다. 현실 세계의 시각 인지에서 대비는 같은 시야 안에 있는 물체와 다른 물체들 간의 색상 및 밝기 차이로 결정됩니다.</p>
+      <p id="sample-body">대비(contrast)는 어떤 물체(또는 이미지나 디스플레이 상의 그 표현)를 구별할 수 있게 만드는 휘도 또는 색상의 차이입니다. 현실 세계의 시각 인지에서 대비는 같은 시야 안에 있는 물체와 다른 물체들 간의 색상 및 밝기 차이로 결정됩니다.</p>
       <p class="en">Contrast is the difference in luminance or color that makes an object distinguishable. In visual perception of the real world, contrast is determined by the difference in the color and brightness of the object and other objects within the same field of view. <span class="t-bold">Good contrast makes interfaces usable for everyone,</span> including people with low vision or color deficiencies.</p>
 
       <h2>작은 텍스트 · Small Text</h2>
-      <p class="t-small">캡션, 각주, 라벨 같은 작은 글씨는 대비가 부족하면 가장 먼저 읽기 어려워집니다. Small type like captions, footnotes, and labels is the first to become illegible when contrast is low.</p>
+      <p class="t-small" id="sample-small">캡션, 각주, 라벨 같은 작은 글씨는 대비가 부족하면 가장 먼저 읽기 어려워집니다. Small type like captions, footnotes, and labels is the first to become illegible when contrast is low.</p>
 
       <h2>WCAG 기준표 · Criteria</h2>
       <table class="criteria">
@@ -531,6 +632,35 @@
       var la = luminance(a), lb = luminance(b);
       return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
     }
+    // ---------- APCA (WCAG 3 후보 대비 지표, 참고용) ----------
+    // 알고리즘: APCA-W3 / SAPC-8, const set 0.1.1 (0.98G-4g).
+    // 출처: Myndex/apca-w3 (Andrew Somers, https://github.com/Myndex/apca-w3, MIT).
+    // WCAG 2 등급 판정에는 쓰지 않고 화면에는 Lc 값만 병기한다(기준 혼동 방지).
+    function apcaY(hex) {
+      var r = parseInt(hex.substr(0, 2), 16),
+          g = parseInt(hex.substr(2, 2), 16),
+          b = parseInt(hex.substr(4, 2), 16);
+      function lin(v) { return Math.pow(v / 255, 2.4); }
+      return 0.2126729 * lin(r) + 0.7151522 * lin(g) + 0.0721750 * lin(b);
+    }
+    function apcaLc(txtHex, bgHex) {
+      var txtY = apcaY(txtHex), bgY = apcaY(bgHex);
+      var blkThrs = 0.022, blkClmp = 1.414;
+      // 검정 근처 소프트 클램프
+      if (txtY <= blkThrs) txtY += Math.pow(blkThrs - txtY, blkClmp);
+      if (bgY  <= blkThrs) bgY  += Math.pow(blkThrs - bgY,  blkClmp);
+      if (Math.abs(bgY - txtY) < 0.0005) return 0; // deltaYmin
+      var out;
+      if (bgY > txtY) { // 정극성: 밝은 배경 위 어두운 글자
+        var sapc = (Math.pow(bgY, 0.56) - Math.pow(txtY, 0.57)) * 1.14;
+        out = sapc < 0.1 ? 0 : sapc - 0.027; // loClip / loBoWoffset
+      } else {          // 역극성: 어두운 배경 위 밝은 글자
+        var sapc2 = (Math.pow(bgY, 0.65) - Math.pow(txtY, 0.62)) * 1.14;
+        out = sapc2 > -0.1 ? 0 : sapc2 + 0.027; // loClip / loWoBoffset
+      }
+      return out * 100;
+    }
+
     function grade(ratio) {
       if (ratio >= 7)   return 'AAA';
       if (ratio >= 4.5) return 'AA';
@@ -661,6 +791,10 @@
       var g = grade(ratio);
       $('badge').textContent = g;
       $('badge').className = 'badge' + (g === 'Fail' ? ' fail' : '');
+
+      // APCA Lc 병기 (참고 표기 — 등급 판정은 WCAG 2 그대로)
+      var lc = apcaLc(textHex, bgHex);
+      $('apca').textContent = 'APCA Lc ' + (lc > 0 ? '+' : '') + Math.round(lc);
 
       $('levels').innerHTML = LEVELS.map(function (l) {
         var pass = ratio >= l.min;
@@ -892,6 +1026,112 @@
           btn.innerHTML = btn.getAttribute('data-label');
           btn.classList.remove('is-copied');
         }, 900);
+      });
+    });
+
+    // ---------- 그리프 프리셋 ----------
+    // 색 값 출처(하드코딩 아님, 실제 소스에서 추출):
+    //  · Que 상태색/브랜드: apps/web/src/app/globals.css(--que-* 라이트 토큰) + lib/pm-columns.ts STATUS_TONE
+    //  · 바로가기 6: apps/web/src/lib/menu.ts accentColor
+    //  · DayBlocks 8: todo_griff/design_token/tokens.css(--block-*-solid)
+    var PRESETS = [
+      { group: 'Que 상태색', colors: [
+        { hex: '#167c46', name: 'Que green (진행/완료)' },
+        { hex: '#4e6cde', name: 'Que blue (예정/정보)' },
+        { hex: '#8a5a12', name: 'Que amber (주의/대기)' },
+        { hex: '#cf4045', name: 'Que red (문제/취소)' },
+        { hex: '#6b3fc4', name: 'Que violet (회의록/응답대기)' }
+      ] },
+      { group: '브랜드', colors: [
+        { hex: '#4e6cde', name: 'Que 브랜드 인디고' }
+      ] },
+      { group: '바로가기 · Shortcuts', colors: [
+        { hex: '#06b6d4', name: '간트 Gantt' },
+        { hex: '#3b82f6', name: '뷰 View' },
+        { hex: '#22c55e', name: '투두 Todo' },
+        { hex: '#ec4899', name: '컬러 Color' },
+        { hex: '#ec5a29', name: '폰트 Font' },
+        { hex: '#8b5cf6', name: '인터뷰 Interview' }
+      ] },
+      { group: 'DayBlocks', colors: [
+        { hex: '#4285F4', name: 'DayBlocks blue' },
+        { hex: '#34A853', name: 'DayBlocks green' },
+        { hex: '#FA903E', name: 'DayBlocks orange' },
+        { hex: '#EA4335', name: 'DayBlocks red' },
+        { hex: '#A250E8', name: 'DayBlocks purple' },
+        { hex: '#EC4899', name: 'DayBlocks pink' },
+        { hex: '#14B8A6', name: 'DayBlocks teal' },
+        { hex: '#9AA0A6', name: 'DayBlocks gray' }
+      ] }
+    ];
+    $('preset-groups').innerHTML = PRESETS.map(function (grp) {
+      var chips = grp.colors.map(function (c) {
+        return '<button type="button" class="swatch" ' +
+          'data-hex="' + c.hex + '" ' +
+          'style="background-color:' + c.hex + '" ' +
+          'title="' + esc(c.name) + ' — 클릭=글자색, Shift·우클릭=배경색" ' +
+          'aria-label="' + esc(c.name) + '"></button>';
+      }).join('');
+      return '<div class="preset-group">' +
+        '<span class="preset-group-label">' + esc(grp.group) + '</span>' +
+        '<div class="swatches">' + chips + '</div></div>';
+    }).join('');
+
+    function applyPreset(hex, target) {
+      var h = normHex(hex);
+      if (!h) return;
+      state[target] = hexToHsl(h);
+      render();
+    }
+    $('preset-groups').addEventListener('click', function (e) {
+      var sw = e.target.closest('.swatch');
+      if (!sw) return;
+      applyPreset(sw.getAttribute('data-hex'), e.shiftKey ? 'bg' : 'text');
+    });
+    $('preset-groups').addEventListener('contextmenu', function (e) {
+      var sw = e.target.closest('.swatch');
+      if (!sw) return;
+      e.preventDefault();
+      applyPreset(sw.getAttribute('data-hex'), 'bg');
+    });
+
+    // ---------- 색각 이상 시뮬레이션 ----------
+    var SIM_FILTER = { none: 'none', prot: 'url(#cvd-prot)', deut: 'url(#cvd-deut)', trit: 'url(#cvd-trit)' };
+    var sampleEl = document.querySelector('.sample');
+    $('sim-btns').addEventListener('click', function (e) {
+      var btn = e.target.closest('.sim-btn');
+      if (!btn) return;
+      var mode = btn.getAttribute('data-sim');
+      // 컨트롤(입력창·토글) 자신은 필터 밖에 두고, 텍스트 샘플 블록에만 적용
+      sampleEl.style.filter = SIM_FILTER[mode] || 'none';
+      document.querySelectorAll('.sim-btn').forEach(function (b) {
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+    });
+
+    // ---------- 커스텀 샘플 문장 ----------
+    // 큰/본문/작은 샘플의 '첫 문장'만 입력값으로 교체(나머지 문장은 유지). 비우면 기본 복원.
+    // textContent 삽입이라 이스케이프 자동(innerHTML 미사용).
+    function splitFirstSentence(text) {
+      var m = text.match(/^([\s\S]*?[.!?。])(\s[\s\S]*)$/);
+      return m ? [m[1], m[2]] : [text, ''];
+    }
+    var SAMPLE_IDS = ['sample-large', 'sample-body', 'sample-small'];
+    var sampleRest = {};
+    SAMPLE_IDS.forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      var parts = splitFirstSentence(el.textContent);
+      el.setAttribute('data-lead', parts[0]);
+      sampleRest[id] = parts[1];
+    });
+    $('custom-sample').addEventListener('input', function () {
+      var v = this.value;
+      SAMPLE_IDS.forEach(function (id) {
+        var el = $(id);
+        if (!el) return;
+        var lead = v.trim() ? v : el.getAttribute('data-lead');
+        el.textContent = lead + sampleRest[id];
       });
     });
 
